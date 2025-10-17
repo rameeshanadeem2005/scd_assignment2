@@ -4,13 +4,14 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up Node.js
@@ -21,18 +22,29 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run linting (if available)
+    - name: Run tests (if available)
       run: |
-        if npm run | grep -q "lint"; then
-          npm run lint
+        if npm run | grep -q "test"; then
+          echo "Running tests..."
+          npm test
         else
-          echo "No lint script found, skipping linting."
+          echo "No test script found, skipping tests."
         fi
 
     - name: Build project (if available)
       run: |
         if npm run | grep -q "build"; then
+          echo "Running build..."
           npm run build
         else
           echo "No build script found, skipping build."
+        fi
+
+    - name: Lint (if available)
+      run: |
+        if npm run | grep -q "lint"; then
+          echo "Running lint checks..."
+          npm run lint
+        else
+          echo "No lint script found, skipping lint."
         fi
