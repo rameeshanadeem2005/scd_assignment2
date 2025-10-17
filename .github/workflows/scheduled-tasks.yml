@@ -1,15 +1,42 @@
-name: Scheduled Backup
+name: Scheduled Maintenance Tasks
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Runs every Sunday at midnight (UTC)
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  backup:
+  maintenance:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Run backup script
-      run: echo "Running backup..."
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run maintenance script (if available)
+      run: |
+        if npm run | grep -q "maintenance"; then
+          echo "Running maintenance task..."
+          npm run maintenance
+        else
+          echo "No maintenance script found, running default cleanup."
+          # Add your maintenance command here if needed, for example:
+          # node scripts/cleanup.js
+        fi
+
+    - name: Build project (if available)
+      run: |
+        if npm run | grep -q "build"; then
+          echo "Running build..."
+          npm run build
+        else
+          echo "No build script found, skipping build."
+        fi
