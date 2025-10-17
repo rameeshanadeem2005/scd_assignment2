@@ -1,0 +1,15 @@
+name: Scheduled Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight (UTC)
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Run backup script
+      run: echo "Running backup..."
