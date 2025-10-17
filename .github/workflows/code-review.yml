@@ -1,14 +1,15 @@
-name: Code Review
+name: Code Review Workflow
 
 on:
   pull_request:
+    branches: [ "main" ]
 
 jobs:
-  lint:
+  code-review:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up Node.js
@@ -19,5 +20,28 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run ESLint
-      run: npm run lint
+    - name: Lint code (if available)
+      run: |
+        if npm run | grep -q "lint"; then
+          echo "Running lint checks..."
+          npm run lint
+        else
+          echo "No lint script found, skipping lint."
+        fi
+
+    - name: Build project (if available)
+      run: |
+        if npm run | grep -q "build"; then
+          echo "Running build..."
+          npm run build
+        else
+          echo "No build script found, skipping build."
+        fi
+
+    - name: Security scan
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+
+    - name: CodeQL Analysis
+      uses: github
