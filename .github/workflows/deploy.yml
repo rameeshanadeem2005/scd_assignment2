@@ -12,8 +12,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Build project
-      run: npm run build
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests (if available)
+      run: |
+        if npm run | grep -q "test"; then
+          npm test
+        else
+          echo "No test script found, skipping tests."
+        fi
+
+    - name: Build project (if available)
+      run: |
+        if npm run | grep -q "build"; then
+          npm run build
+        else
+          echo "No build script found, skipping build."
+        fi
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
