@@ -1,0 +1,42 @@
+name: Generate Release Notes
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # Runs when a new version tag is created (e.g., v1.0.0)
+
+jobs:
+  release_notes:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install auto-changelog (if missing)
+      run: |
+        if ! npx --yes auto-changelog --help > /dev/null 2>&1; then
+          echo "Installing auto-changelog..."
+          npm install auto-changelog --save-dev
+        else
+          echo "auto-changelog is already available."
+        fi
+
+    - name: Generate changelog
+      run: npx auto-changelog -p
+
+    - name: Commit and push changelog
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add CHANGELOG.md
+        git commit -m "docs: update changelog for new release" || echo "No changes to commit"
+        git push
