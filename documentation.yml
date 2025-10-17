@@ -1,0 +1,40 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'docs/**'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build documentation (if available)
+      run: |
+        if npm run | grep -q "docs:build"; then
+          echo "Building documentation..."
+          npm run docs:build
+        else
+          echo "No docs:build script found, skipping documentation build."
+          mkdir -p docs/.vuepress/dist
+          echo "<h1>No documentation build step found</h1>" > docs/.vuepress/dist/index.html
+        fi
+
+    - name: Deploy Docs
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/.vuepress/dist
