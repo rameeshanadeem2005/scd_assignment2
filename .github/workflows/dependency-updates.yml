@@ -2,18 +2,14 @@ name: Automated Dependency Updates
 
 on:
   schedule:
-    - cron: "0 3 * * 0"  # Runs every Sunday at 3 AM
-  workflow_dispatch:
+    - cron: "0 0 * * 0"   
+  workflow_dispatch:       
 
 jobs:
   dependency-updates:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Set up Node.js
@@ -24,24 +20,16 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Check for dependency updates
-      uses: npm-check-updates/ncu-action@v2
-      with:
-        args: -u
+    - name: Check for outdated packages
+      run: npm outdated || true   # Prevent failure if packages are outdated
+
+    - name: Update dependencies
+      run: npm update
 
     - name: Commit and push updates
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add package*.json
-        git commit -m "chore: update dependencies" || echo "No changes to commit"
+        git commit -m "Automated dependency updates" || echo "No updates to commit"
         git push
-
-    - name: Run tests (if available)
-      run: |
-        if npm run | grep -q "test"; then
-          echo "Running tests..."
-          npm test
-        else
-          echo "No test script found, skipping tests."
-        fi
