@@ -3,7 +3,7 @@ name: Scheduled Maintenance Tasks
 on:
   schedule:
     - cron: "0 0 * * *"
-  workflow_dispatch:
+  
 
 jobs:
   maintenance:
