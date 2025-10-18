@@ -101,4 +101,4 @@ function getTable(config) {
 	});
 }
 
-exports.getTable = getTable;
+exports.getTable = getTable
