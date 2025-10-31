@@ -1,35 +1,44 @@
-name: Automated Dependency Updates
+name: Dependency Updates
 
 on:
   schedule:
-    - cron: "0 0 * * 0"   
-         
+    - cron: "0 2 * * *"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "package.json"
+      - "package-lock.json"
 
 jobs:
-  dependency-updates:
+  update-dependencies:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Check for outdated packages
-      run: npm outdated || true   # Prevent failure if packages are outdated
+      - name: Run tests
+        run: |
+          if npm run | grep -q "test"; then
+            echo "Running tests..."
+            npm test
+          else
+            echo "No test script found, skipping tests."
+          fi
 
-    - name: Update dependencies
-      run: npm update
-
-    - name: Commit and push updates
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add -f package*.json
-        git commit -m "Automated dependency updates" || echo "No updates to commit"
-        git push
+      - name: Lint code
+        run: |
+          if npm run | grep -q "lint"; then
+            echo "Running lint..."
+            npm run lint
+          else
+            echo "No lint script found, skipping lint."
+          fi
