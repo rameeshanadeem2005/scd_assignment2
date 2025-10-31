@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"        # You are using Node.js
+    directory: "/"                  # Location of package.json
+    schedule:
+      interval: "daily"             # Check for updates daily
+    commit-message:
+      prefix: "chore"               # Prefix for commits like "chore: update dependency"
+    open-pull-requests-limit: 5     # Max open PRs at a time
+    ignore:
+      - dependency-name: "eslint"   # Optional: ignore specific dependencies
+        versions:
+          - ">=8.50.0"
