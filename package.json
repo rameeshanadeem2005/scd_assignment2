@@ -6,10 +6,16 @@
   "main": "run.js",
   "scripts": {
     "start": "node run.js"
+    "test": "jest"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "mock-fs": "^5.2.0",
+    "nock": "^13.3.0"
   },
   "repository": {
     "type": "git",
