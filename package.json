@@ -16,7 +16,8 @@
   "devDependencies": {
     "jest": "^29.0.0",
     "mock-fs": "^5.2.0",
-    "nock": "^13.3.0"
+    "nock": "^13.3.0",
+    "eslint": "^8.50.0"
   },
   "repository": {
     "type": "git",
