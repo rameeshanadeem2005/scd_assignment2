@@ -1,43 +1,47 @@
-name: Deploy to GitHub Pages
+name: Deployment Pipeline
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run tests (if available)
-      run: |
-        if npm run | grep -q "test"; then
-          npm test
-        else
-          echo "No test script found, skipping tests."
-        fi
+      - name: Run tests
+        run: |
+          if npm run | grep -q "test"; then
+            npm test
+          else
+            echo "No test script found, skipping tests."
+          fi
 
-    - name: Build project (if available)
-      run: |
-        if npm run | grep -q "build"; then
-          npm run build
-        else
-          echo "No build script found, skipping build."
-        fi
+      - name: Build project
+        run: |
+          if npm run | grep -q "build"; then
+            npm run build
+          else
+            echo "No build script found, skipping build."
+          fi
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+        run: |
+          npm install -g heroku
+          heroku git:remote -a $HEROKU_APP_NAME
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git main
