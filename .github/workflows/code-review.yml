@@ -2,46 +2,74 @@ name: Code Review Workflow
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  code-review:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Install dependencies
+        run: npm install
 
-    - name: Install dependencies
-      run: npm install
+      - name: Run ESLint for code style
+        run: npm run lint
 
-    - name: Lint code (if available)
-      run: |
-        if npm run | grep -q "lint"; then
-          echo "Running lint checks..."
-          npm run lint
-        else
-          echo "No lint script found, skipping lint."
-        fi
+  quality-check:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Build project (if available)
-      run: |
-        if npm run | grep -q "build"; then
-          echo "Running build..."
-          npm run build
-        else
-          echo "No build script found, skipping build."
-        fi
+      - name: Install dependencies
+        run: npm install
 
-    - name: Security scan
-      uses: actions/dependency-review-action@v4
-      with:
-        fail-on-severity: high
+      - name: Run Code Quality Analysis
+        run: npm run quality-check  # Use any code quality tool or script that you prefer
 
-    - name: CodeQL Analysis
-      uses: github
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: quality-check
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Security Scan (example using npm audit)
+        run: npm audit --production
+
+  feedback:
+    runs-on: ubuntu-latest
+    needs: [lint, quality-check, security-scan]
+    if: ${{ failure() }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Provide feedback on failing checks
+        run: |
+          echo "Code review failed. Please address the following issues:"
+          echo "Linting errors: $(eslint src --format unix)"
+          echo "Code quality issues: $(npm run quality-check)"
+          echo "Security vulnerabilities: $(npm audit --production)"
