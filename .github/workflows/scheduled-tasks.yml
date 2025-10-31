@@ -28,8 +28,6 @@ jobs:
           npm run maintenance
         else
           echo "No maintenance script found, running default cleanup."
-          # Add your maintenance command here if needed, for example:
-          # node scripts/cleanup.js
         fi
 
     - name: Build project (if available)
