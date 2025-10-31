@@ -2,39 +2,34 @@ name: Scheduled Maintenance Tasks
 
 on:
   schedule:
-    - cron: "0 0 * * *"
-  
+    - cron: "0 2 * * *"
 
 jobs:
   maintenance:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run maintenance script (if available)
-      run: |
-        if npm run | grep -q "maintenance"; then
-          echo "Running maintenance task..."
-          npm run maintenance
-        else
-          echo "No maintenance script found, running default cleanup."
-        fi
+      - name: Run Iridium scraper
+        run: node src/iridium.js
 
-    - name: Build project (if available)
-      run: |
-        if npm run | grep -q "build"; then
-          echo "Running build..."
-          npm run build
-        else
-          echo "No build script found, skipping build."
-        fi
+      - name: Run Satellite scraper
+        run: node src/satellite.js
+
+      - name: Cleanup old files (optional)
+        run: |
+          find ./IridiumFlares -type f -name "*.html" -mtime +30 -delete
+          find ./satellite* -type f -name "*.html" -mtime +30 -delete
+
+      - name: Log maintenance
+        run: echo "Scheduled scraping completed at $(date)"
