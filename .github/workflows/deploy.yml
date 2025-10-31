@@ -36,6 +36,9 @@ jobs:
             echo "No build script found, skipping build."
           fi
 
+      - name: Zip project
+        run: zip -r app.zip . -x "*.git*" "*.github*"
+
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -45,5 +48,5 @@ jobs:
           application_name: ${{ secrets.EB_APP_NAME }}
           environment_name: ${{ secrets.EB_ENV_NAME }}
           version_label: ${{ github.sha }}
-          bucket_name: ${{ secrets.EB_APP_NAME }}-deployments
-          bucket_key: ${{ github.sha }}.zip
+          deployment_package: app.zip
+
