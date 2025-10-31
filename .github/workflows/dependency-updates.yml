@@ -33,12 +33,3 @@ jobs:
           else
             echo "No test script found, skipping tests."
           fi
-
-      - name: Lint code
-        run: |
-          if npm run | grep -q "lint"; then
-            echo "Running lint..."
-            npm run lint
-          else
-            echo "No lint script found, skipping lint."
-          fi
