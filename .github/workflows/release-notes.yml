@@ -14,7 +14,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate Release Notes
-        id: release_notes
         uses: mikeal/release-notes-action@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -22,6 +21,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}
-          name: "Release ${{ github.ref_name }}"
-          body: ${{ steps.release_notes.outputs.notes }}
+          tag: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body: ${{ steps.release-notes.outputs.notes }}
